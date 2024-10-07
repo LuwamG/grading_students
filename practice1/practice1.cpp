@@ -1,25 +1,47 @@
-//#include "//Daniel Gebrezgiabhier\source\repos\header.cpp\"
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <limits> // For numeric_limits
 using namespace std;
 
 const int MAX_STUDENTS = 20;
 
 string names[MAX_STUDENTS];
 double scores[MAX_STUDENTS];
- 
+
 void input_scores(int& count) {
     cout << "Enter number of students (max " << MAX_STUDENTS << "): ";
-    cin >> count;
 
-    
+    while (true) {
+        cin >> count;
+        if (cin.fail() || count < 1 || count > MAX_STUDENTS) {
+            cin.clear(); // Clear the error state
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+            cout << "Please enter a valid number of students (1 to " << MAX_STUDENTS << "): ";
+        }
+        else {
+            cin.ignore(); // Clear the input buffer
+            break;
+        }
+    }
 
     for (int i = 0; i < count; i++) {
         cout << "Enter name for student " << (i + 1) << ": ";
-        cin >> names[i];
+        getline(cin, names[i]); // Use getline to capture full names
         cout << "Enter score for " << names[i] << ": ";
-        cin >> scores[i];
+
+        while (true) {
+            cin >> scores[i];
+            if (cin.fail() || scores[i] < 0 || scores[i] > 100) {
+                cin.clear(); // Clear the error state
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+                cout << "Please enter a valid score (0-100) for " << names[i] << ": ";
+            }
+            else {
+                cin.ignore(); // Clear the input buffer
+                break;
+            }
+        }
     }
 }
 
@@ -34,12 +56,14 @@ double total_grades(int count) {
 
 // Function to calculate average score
 double average_grades(int count) {
-    double total_score = total_grades(count);
-    return total_score / count;
+    if (count == 0) return 0; // Avoid division by zero
+    return total_grades(count) / count;
 }
 
 // Function to display analysis of grades
 void display_results(int count) {
+    if (count == 0) return; // No results to display
+
     double total_score = total_grades(count);
     double average = average_grades(count);
     double highest = scores[0];
@@ -82,18 +106,12 @@ void compare_results(int count) {
         cout << "Enter the second student's name to compare: ";
         cin >> student2;
 
-        // Search for the two students
         double score1 = -1, score2 = -1;
         for (int i = 0; i < count; i++) {
-            if (names[i] == student1) {
-                score1 = scores[i];
-            }
-            if (names[i] == student2) {
-                score2 = scores[i];
-            }
+            if (names[i] == student1) score1 = scores[i];
+            if (names[i] == student2) score2 = scores[i];
         }
 
-        // Check if both scores were found
         if (score1 != -1 && score2 != -1) {
             if (score1 > score2) {
                 cout << student1 << " has a higher score than " << student2 << "." << endl;
@@ -111,14 +129,12 @@ void compare_results(int count) {
     }
 }
 
-
-
 int main() {
-    int count = 0; 
+    int count = 0;
 
-    input_scores(count);      
-    display_results(count);    
-    compare_results(count);     
+    input_scores(count);
+    display_results(count);
+    compare_results(count);
 
     return 0;
 }
